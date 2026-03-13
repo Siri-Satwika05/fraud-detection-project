@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FraudShield — Transaction Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- ── Background Grid ── -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <!-- ── Header ── -->
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-icon">⬡</span>
+      <span class="logo-text">FraudShield</span>
+    </div>
+    <nav class="header-nav">
+      <span class="nav-badge">ML-Powered</span>
+      <span class="nav-badge">Real-Time</span>
+    </nav>
+  </header>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <p class="hero-label">Financial Security System</p>
+    <h1 class="hero-title">Transaction<br /><em>Intelligence</em></h1>
+    <p class="hero-subtitle">
+      Enter any transaction's details below and our Random Forest model will
+      analyse 10 risk signals in milliseconds to determine if it's legitimate
+      or fraudulent.
+    </p>
+  </section>
+
+  <!-- ── Main Layout ── -->
+  <main class="main-layout">
+
+    <!-- ── Form Panel ── -->
+    <section class="card form-card">
+      <h2 class="card-title">
+        <span class="card-title-num">01</span>
+        Transaction Details
+      </h2>
+
+      <form id="fraud-form" novalidate>
+
+        <!-- Row 1 -->
+        <div class="field-row">
+          <div class="field-group">
+            <label for="amount">Transaction Amount (INR)</label>
+            <div class="input-wrap">
+              <span class="input-prefix">₹</span>
+              <input type="number" id="amount" name="amount"
+                     placeholder="0.00" min="1" max="4000000" step="0.01" required />
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="hour_of_day">Hour of Day (0–23)</label>
+            <input type="number" id="hour_of_day" name="hour_of_day"
+                   placeholder="e.g. 14" min="0" max="23" required />
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="field-row">
+          <div class="field-group">
+            <label for="day_of_week">Day of Week</label>
+            <select id="day_of_week" name="day_of_week" required>
+              <option value="">Select day…</option>
+              <option value="0">Monday</option>
+              <option value="1">Tuesday</option>
+              <option value="2">Wednesday</option>
+              <option value="3">Thursday</option>
+              <option value="4">Friday</option>
+              <option value="5">Saturday</option>
+              <option value="6">Sunday</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="transaction_type">Transaction Type</label>
+            <select id="transaction_type" name="transaction_type" required>
+              <option value="">Select type…</option>
+              <option value="0">UPI Payment</option>
+              <option value="1">ATM Withdrawal</option>
+              <option value="2">Debit / Credit Card (POS)</option>
+              <option value="3">NEFT / RTGS / IMPS</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="field-row">
+          <div class="field-group">
+            <label for="merchant_category">Merchant Category</label>
+            <select id="merchant_category" name="merchant_category" required>
+              <option value="">Select category…</option>
+              <option value="0">Kirana / Grocery</option>
+              <option value="1">Electronics</option>
+              <option value="2">Travel & Transport</option>
+              <option value="3">Restaurant / Dining</option>
+              <option value="4">Entertainment / OTT</option>
+              <option value="5">Healthcare / Pharmacy</option>
+              <option value="6">Clothing & Fashion</option>
+              <option value="7">Petrol / CNG</option>
+              <option value="8">Utilities & Bills</option>
+              <option value="9">Other</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="distance_from_home">Distance from Home (km)</label>
+            <input type="number" id="distance_from_home" name="distance_from_home"
+                   placeholder="e.g. 5.2" min="0" max="20000" step="0.1" required />
+          </div>
+        </div>
+
+        <!-- Row 4 -->
+        <div class="field-row">
+          <div class="field-group">
+            <label for="num_prev_transactions">Previous Transactions (last 30d)</label>
+            <input type="number" id="num_prev_transactions" name="num_prev_transactions"
+                   placeholder="e.g. 12" min="0" max="500" required />
+          </div>
+          <div class="field-group">
+            <label for="account_age_days">Account Age (days)</label>
+            <input type="number" id="account_age_days" name="account_age_days"
+                   placeholder="e.g. 730" min="0" max="36500" required />
+          </div>
+        </div>
+
+        <!-- Row 5 -->
+        <div class="field-row">
+          <div class="field-group">
+            <label for="failed_attempts">Failed Auth Attempts</label>
+            <input type="number" id="failed_attempts" name="failed_attempts"
+                   placeholder="e.g. 0" min="0" max="10" required />
+          </div>
+          <div class="field-group">
+            <label for="is_international">International Transaction?</label>
+            <select id="is_international" name="is_international" required>
+              <option value="">Select…</option>
+              <option value="0">No — Domestic</option>
+              <option value="1">Yes — International</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Error box -->
+        <div id="form-error" class="form-error" role="alert" hidden></div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-analyze" id="submit-btn">
+          <span class="btn-text">Analyze Transaction</span>
+          <span class="btn-icon">→</span>
+        </button>
+
+      </form>
+    </section>
+
+    <!-- ── Result Panel ── -->
+    <aside class="card result-card" id="result-panel" aria-live="polite">
+
+      <!-- Idle state -->
+      <div class="result-idle" id="result-idle">
+        <div class="idle-icon">◈</div>
+        <p class="idle-title">Awaiting Analysis</p>
+        <p class="idle-sub">Fill in the form and click<br />"Analyze Transaction"</p>
+      </div>
+
+      <!-- Loading state -->
+      <div class="result-loading" id="result-loading" hidden>
+        <div class="spinner"></div>
+        <p>Running model inference…</p>
+      </div>
+
+      <!-- Result state -->
+      <div class="result-output" id="result-output" hidden>
+
+        <div class="verdict-icon" id="verdict-icon"></div>
+        <p class="verdict-label" id="verdict-label"></p>
+        <h3 class="verdict-text"  id="verdict-text"></h3>
+
+        <!-- Probability bar -->
+        <div class="prob-section">
+          <div class="prob-header">
+            <span>Fraud Probability</span>
+            <span class="prob-value" id="prob-value">—</span>
+          </div>
+          <div class="prob-bar-track">
+            <div class="prob-bar-fill" id="prob-bar"></div>
+          </div>
+        </div>
+
+        <!-- Risk badge -->
+        <div class="risk-row">
+          <span class="risk-label">Risk Level</span>
+          <span class="risk-badge" id="risk-badge"></span>
+        </div>
+
+        <!-- Feature grid -->
+        <div class="feature-grid" id="feature-grid"></div>
+
+        <!-- Re-analyze -->
+        <button class="btn-reset" id="reset-btn">← New Analysis</button>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <p>FraudShield · Random Forest · Scikit-learn · Flask</p>
+    <p class="footer-sub">For demonstration purposes only. Not financial advice.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
